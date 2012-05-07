@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>title</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+
+    <style type="text/css" media="screen">
+      #myElement {
+        width:100px;
+        height:100px;
+        line-height:100px;
+        text-align:center;
+        background:#ccc;
+        position:absolute;
+        left:0;
+      }
+
+      .ani {
+          -webkit-animation-duration: 10s;
+                animation-duration: 10s;
+        -webkit-animation-fill-mode: both;
+                animation-fill-mode: both;
+      }
+
+      @-webkit-keyframes foo {
+        0% { left:0; }
+        25% { left: 150px; background:#c00; }
+        90% { left:500px; background:#0c0; }
+        100% {left:0;background:#00c; color:#fff; }
+      }
+
+      .foo {
+        -webkit-animation-name: foo;
+        animation-name: foo;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      Works only on Chrome. Check out the console for extra stuff
+      <div id="myElement">
+        click me!
+      </div>
+    </div><!--/wrap-->
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <script src="js/libs/request_animation_frame.js"></script>
+    <script src="js/jQuery.keyframe.js"></script>
+
+    <script type="text/javascript">
+    var el = $('#myElement');
+      el.live('webkitAnimationEnd webkitAnimationStart keyframe', function(e){
+        switch( e.type ){
+          case 'webkitAnimationEnd':
+            // end event
+            el.removeClass('foo').text('click me')
+            console.log('Animation ended');
+          break;
+          case 'webkitAnimationStart':
+            // start event
+            console.log('Animation started');
+          break;
+          case 'keyframe':
+            // trigger event
+            el.text( 'progress: ' + e.originalEvent.percent + '%' );
+          break;
+        }
+      });
+      el.keyframe(); // plugin init
+
+      el.on('click', function(){
+        $(this).addClass('ani foo'); // css animation
+      })
+    </script>
+
+  </body>
+</html>
