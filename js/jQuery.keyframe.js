@@ -1,3 +1,4 @@
+
 (function($, window, document){
   function createEvent( element, animationKey ) {
     var event           = document.createEvent("Event");
@@ -8,29 +9,18 @@
     element.dispatchEvent(event);
   };
 
+
+
   $.fn.keyframe = function() {
     return this.each(function(index, elem){
-      var reqAniFrame, startTime, endTime, duration, 
+      var reqAniFrame, startTime, endTime, duration,
           keyframesHistory = {}, // some kind of buffer
           cycle            = 1;
 
-      function keyframes ( timestamp ) {
-        var key = Math.floor( ( timestamp - startTime ) / duration * 100 );
-
-        if( !keyframesHistory[key] && ( ( ( key % 5 ) +5 ) % 5 ) == 0 ){
-          keyframesHistory[key] = true;
-          createEvent( elem, key )
-        }
-
-        cycle = cycle+1;
-        reqAniFrame = window.requestAnimationFrame( keyframes );
-      };//keyframes
-
-      $(elem)
-        .unbind( 'webkitAnimationEnd.ntz webkitAnimationStart.ntz' )
-        .bind( 'webkitAnimationEnd.ntz webkitAnimationStart.ntz', function(e){
+      function animationCallback( e ) {
         var t = $(this);
-        if( e.type == 'webkitAnimationStart' ){
+        console.log(e.type.toLowerCase());
+        if( e.type.toLowerCase().indexOf( 'AnimationStart'.toLowerCase() ) > -1 ){
           var allStyles = document.defaultView.getComputedStyle( t[0], null ),
               found = false;
 
@@ -49,7 +39,29 @@
         }else{
           window.cancelAnimationFrame( reqAniFrame );
         }
-      });
+      
+      };//animationCallback
+
+      function keyframes ( timestamp ) {
+        var key = Math.floor( ( timestamp - startTime ) / duration * 100 );
+        if( !keyframesHistory[key] && ( ( ( key % 5 ) +5 ) % 5 ) == 0 ){
+          keyframesHistory[key] = true;
+          createEvent( elem, key )
+        }
+
+        cycle = cycle+1;
+        reqAniFrame = window.requestAnimationFrame( keyframes );
+      };//keyframes
+
+      $(elem).die( '.ntz_keyframes' );//just to make sure we get rid of all events
+
+      var vendors  = [ 'ms', 'moz', 'webkit', 'o' ],
+          binds = 'animationstart.ntz_keyframes animationend.ntz_keyframes ';
+
+      for (var i = vendors.length - 1; i >= 0; i--) {
+        var binds = binds + vendors[i] + 'AnimationEnd.ntz_keyframes ' + vendors[i] + 'AnimationStart.ntz_keyframes ';
+      };
+      $(elem).live( binds, animationCallback);
 
     });
   };
